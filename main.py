@@ -1,164 +1,103 @@
-import datetime
-from web_search import Web_Search
-import pyttsx3
-import speech_recognition
-import os
-import random
+from webSearch import WebSearch
+from joshua import Joshua
+from fnmatch import fnmatch
 
-START_MENU = r"C:\\Users\\zacwa\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\"
+webSearch = WebSearch()
+joshua = Joshua()
 
-engine = pyttsx3.init()
-web_search = Web_Search()
+USR_START_MENU = r"C:\\Users\\zacwa\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\"
+SYS_START_MENU = r"C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\"
 
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
+pathToProgram = {
+  'discord':USR_START_MENU + r"Discord Inc\\Discord",
+  'element':USR_START_MENU + r"Element\\Element",
+  'github desktop':USR_START_MENU + r"GitHub, Inc\\GitHub Desktop",
+  'rekordbox':USR_START_MENU + r"Pioneer\\rekordbox 5.8.6\\rekordbox 5",
+  'retroarch':USR_START_MENU + r"RetroArch\\RetroArch",
+  'dolphin':USR_START_MENU + r"Dolphin",
+  'vim':USR_START_MENU + r"Vim 8.2\\Vim",
+  'vs code':USR_START_MENU + r"Visual Studio Code\\Visual Studio Code",
+  'powershell':USR_START_MENU + r"Windows PowerShell\\Windows PowerShell",
+  'file explorer':USR_START_MENU + r"Windows System\\File Explorer",
+  'settings':SYS_START_MENU + r"Settings",
+  'coding projects':USR_START_MENU + r"Coding projects",
+  'zoom':USR_START_MENU + r"Zoom\\Zoom",
+  'librewolf':USR_START_MENU + r"LibreWolf",
+  'edge':SYS_START_MENU + r"Microsoft Edge",
+  'audacity':SYS_START_MENU + r"Audacity"
+}
 
-rate = engine.getProperty('rate')
-engine.setProperty('rate', 150)
 
-def speak(text):
-  engine.say(text)
-  engine.runAndWait()
-
-def recordAudio():
-  recognizer = speech_recognition.Recognizer()
-
-  
-  with speech_recognition.Microphone() as source:
-    recognizer.energy_threshold = 10000
-    recognizer.adjust_for_ambient_noise(source, 1)
-
-    print("Listening...")
-    audio = recognizer.listen(source)
-
-    try:
-      statement = recognizer.recognize_google(audio, language="en-US")
-      print('User said: ', statement)
-    except speech_recognition.UnknownValueError:
-      return 'None'
-    return statement
-
-def openApp(application):
-  os.startfile(application)
+greetings = ['hi', 'hello', 'sup', "what's up"]
+goodbyes = ['goodbye', 'bye', 'exit', 'quit']
 
 
 while True:
-  text = recordAudio().lower()
-  
-  if 'joshua' in text:
-    speak("How can I help you?")
+  text = joshua.recordAudio().lower()
+  # text = 'open vim'
 
-  elif 'hello' in text or 'hi' in text or "what's up" in text or 'sup' in text:
-    greetings = ['Hello', 'Hi', 'Hey']
-    greeting = random.choice(greetings)
+  if text in greetings:
+    joshua.hello()
 
-    print(greeting)
-    print("How are you?")
-    speak(greeting)
-    speak("How are you?")
+  elif text in goodbyes:
+    joshua.goodbye()
+    break
 
-  elif 'tell' in text and 'hi' in text or 'tell' in text and 'hello' in text:
-    text = text.split()
-    speak("Hello, " + text[1])
+  elif 'what' in text or "what's" in text and 'time' in text:
+    time = joshua.getTime()
+    joshua.speak("The current time is: " + time)
 
-  elif 'good' in text or 'great' in text or 'fine' in text:
-    print("I am glad to hear that. How can I help you?")
-    speak("I am glad to hear that. How can I help you?")
-    
-  elif 'bad' in text or 'not good' in text or 'terrible' in text or 'horrible' in text:
-    print("I am sorry to hear that. How can I help you?")
-    print("I am sorry to hear that. How can I help you?")
-    
-  elif 'how are you' in text or "how're you" in text or 'how about you' in text:
-    print("I am doing good. How can I help you?")
-    speak("I am doing good. How can I help you?")
+  elif "open program" in text or fnmatch(text, "open *"):
+    text = text.replace('open ', '')
+    text = text.replace('program ', '')
 
-  elif 'goodbye' in text or 'bye' in text or 'exit' in text or 'quit' in text or 'stop' in text:
-      print("Goodbye!")
-      speak("Goodbye!")
-      break
+    if text in pathToProgram:
+      joshua.openApp(text, pathToProgram[text])
+    else:
+      joshua.speak("Sorry, I could not find that program.")
 
   elif 'search wikipedia for' in text:
-    text = text.replace('search wikipedia for', '')
-    
-    print('Searching Wikipedia for ', text)
-    speak('Searching Wikipedia for ' + text)
-
-    web_search.wikipedia(text)
-
-  elif 'open wikipedia' in text:
-    print('Opening Wikipedia...')
-    speak('Opening Wikipedia...')
-
-    web_search.open_page("https://www.wikipedia.org")
+    query = text.replace("search wikipedia for ", "")
+    joshua.speak("Searching Wikipedia for " + query)
+    webSearch.wikipedia(query)
 
   elif 'search youtube for' in text:
-    text = text.replace('search youtube for', '')
+    query = text.replace('search youtube for ', '')
+    joshua.speak("Searching YouTube for " + query)
+    webSearch.youtube(query)
 
-    print('Searching YouTube for ', text)
-    speak('Searching YouTube for ' + text)
+  elif 'search duckduckgo for' in text or 'search for' in text:
+    if 'search duckduckgo for' in text:
+      query = text.replace('search duckduckgo for ', '')
 
-    web_search.youtube(text)
+    elif 'search for' in text:
+      query = text.replace('search for ', '')
 
-  elif 'open youtube' in text:
-    print('Opening Youtube...')
-    speak('Opening Youtube...')
+    joshua.speak("Searching for " + query)
+    webSearch.duckduckgo(query)
 
-    web_search.open_page("https://www.youtube.com")
+  elif 'open website' in text or 'go to' in text and 'website' in text:
+    if 'open website' in text:
+      text = text.replace('open website', '')
 
-  elif 'search for' in text or 'look up' in text:
-    if 'search for' in text:
-      text = text.replace('search for', '')
-    elif 'look up' in text:
-      text = text.replace('look up', '')
+    elif 'go to' in text and 'website' in text:
+      text = text.replace('go to ', '')
+      text = text.replace(' website', '')
 
-    print('Searching for ', text)
-    speak('Searching for ' + text)
+    joshua.speak("Opening " + text + "'s website...")
+    webSearch.openSite(text)
 
-    web_search.duckduckgo(text)
+  elif 'open' in text and 'on youtube' in text or 'play' in text and 'on youtube' in text:
+    if 'open' in text:
+      text = text.replace('open ', '')
 
-  elif 'open vs code' in text or 'open visual studio code' in text:
-    print("Opening VSCode...")
-    speak("Opening VSCode...")
+    elif 'play' in text:
+      text = text.replace('play', '')
 
-    openApp(START_MENU + r"Visual Studio Code\\Visual Studio Code")
-
-  elif 'open vim' in text or 'open text editor' in text:
-    print("Opening Vim...")
-    speak("Opening Vim...")
-
-    openApp(START_MENU + r"Vim 8.2\\Vim") 
-  
-  elif 'open rekordbox' in text:
-    print("Opening RekordBox...")
-    speak("Opening RekordBox...")
-
-    openApp(START_MENU + r"Pioneer\\rekordbox 5.8.6\\rekordbox 5")
-  
-  elif 'open dolphin emulator' in text or 'open dolphin' in text:
-    print("Opening Dolphin emulator...")
-    speak("Opening Dolphin emulator...")
-
-    openApp(START_MENU + r"Dolphin")
-
-  elif 'open retro arch emulator' in text or 'open retro arch' in text:
-    print("Opening RetroArch emulator...")
-    speak("Opening RetroArch emulator...")
-
-    openApp(START_MENU + r"RetroArch\\RetroArch")
-
-  elif 'open files' in text or 'open explorer' in text or 'open file explorer' in text:
-    print("Opening File Explorer...")
-    speak("Opening File Explorer...")
-
-    openApp(START_MENU + r"Windows System\\File Explorer")
-
-  elif 'what time is it' in text:
-    strTime = datetime.datetime.now().strftime("%H:%M")
-
-    print(strTime)
-    speak("It is " + strTime)
+    text = text.replace(' on youtube', '')
+    
+    joshua.speak("Opening " + text + " on YouTube...")
+    webSearch.openInYoutube(text)
 
   else:
-    print("Sorry, I don't know how to do that yet.")
-    speak("Sorry, I don't know how to do that yet.")
+    joshua.speak("Sorry, I don't know how to do that ...... yet.")
