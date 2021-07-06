@@ -24,80 +24,110 @@ pathToProgram = {
   'zoom':USR_START_MENU + r"Zoom\\Zoom",
   'librewolf':USR_START_MENU + r"LibreWolf",
   'edge':SYS_START_MENU + r"Microsoft Edge",
+  'microsoft edge':SYS_START_MENU + r"Microsoft Edge",
   'audacity':SYS_START_MENU + r"Audacity"
+}
+
+urlForWebsite = {
+  'youtube':"https://www.youtube.com",
+  'duckduckgo':"https://duckduckgo.com",
+  'google maps':"https://www.google.com/maps",
+  'songsterr':"https://www.songsterr.com",
+  'icloud':"https://www.icloud.com",
+  'github':"https://github.com"
 }
 
 
 greetings = ['hi', 'hello', 'sup', "what's up"]
 goodbyes = ['goodbye', 'bye', 'exit', 'quit']
+wake_words = ['joshua', 'hi', 'hello']
 
+print('')
+print('######################################################################################')
+print('NOTE: Please wait to start giving commands until you see "Listening..." in the console')
+print('######################################################################################')
+print('')
 
 while True:
   text = joshua.recordAudio().lower()
-  # text = 'open vim'
+  # text = 'joshua'
 
-  if text in greetings:
-    joshua.hello()
-
-  elif text in goodbyes:
+  if text in goodbyes:
     joshua.goodbye()
     break
 
-  elif 'what' in text or "what's" in text and 'time' in text:
-    time = joshua.getTime()
-    joshua.speak("The current time is: " + time)
+  for word in wake_words:
+    if text.count(word) > 0 :
+      if text in greetings:
+        joshua.hello()
 
-  elif "open program" in text or fnmatch(text, "open *"):
-    text = text.replace('open ', '')
-    text = text.replace('program ', '')
+      joshua.speak("How can I help you?")
+      text = joshua.recordAudio().lower()
+      # text = 'open youtube'
 
-    if text in pathToProgram:
-      joshua.openApp(text, pathToProgram[text])
-    else:
-      joshua.speak("Sorry, I could not find that program.")
+      if 'what' in text or "what's" in text and 'time' in text:
+        x = joshua.getTime()
+        joshua.speak("The current time is: " + x)
 
-  elif 'search wikipedia for' in text:
-    query = text.replace("search wikipedia for ", "")
-    joshua.speak("Searching Wikipedia for " + query)
-    webSearch.wikipedia(query)
+      elif fnmatch(text, "open *"):
+        text = text.replace('open ', '')
 
-  elif 'search youtube for' in text:
-    query = text.replace('search youtube for ', '')
-    joshua.speak("Searching YouTube for " + query)
-    webSearch.youtube(query)
+        if text in pathToProgram:
+          joshua.openApp(text, pathToProgram[text])
+        
+        elif  text in urlForWebsite:
+          joshua.speak("Opening " + text)
+          webSearch.openPage(urlForWebsite[text])
 
-  elif 'search duckduckgo for' in text or 'search for' in text:
-    if 'search duckduckgo for' in text:
-      query = text.replace('search duckduckgo for ', '')
+        else:
+          joshua.speak("Sorry, I could not find that program.")
 
-    elif 'search for' in text:
-      query = text.replace('search for ', '')
+      elif 'search wikipedia for' in text:
+        query = text.replace("search wikipedia for ", "")
+        joshua.speak("Searching Wikipedia for " + query)
+        webSearch.wikipedia(query)
 
-    joshua.speak("Searching for " + query)
-    webSearch.duckduckgo(query)
+      elif 'search youtube for' in text:
+        query = text.replace('search youtube for ', '')
+        joshua.speak("Searching YouTube for " + query)
+        webSearch.youtube(query)
 
-  elif 'open website' in text or 'go to' in text and 'website' in text:
-    if 'open website' in text:
-      text = text.replace('open website', '')
+      elif 'search duckduckgo for' in text or 'search for' in text:
+        if 'search duckduckgo for' in text:
+          query = text.replace('search duckduckgo for ', '')
 
-    elif 'go to' in text and 'website' in text:
-      text = text.replace('go to ', '')
-      text = text.replace(' website', '')
+        elif 'search for' in text:
+          query = text.replace('search for ', '')
 
-    joshua.speak("Opening " + text + "'s website...")
-    webSearch.openSite(text)
+        joshua.speak("Searching for " + query)
+        webSearch.duckduckgo(query)
 
-  elif 'open' in text and 'on youtube' in text or 'play' in text and 'on youtube' in text:
-    if 'open' in text:
-      text = text.replace('open ', '')
+      elif 'open website' in text or 'go to' in text and 'website' in text:
+        if 'open website' in text:
+          text = text.replace('open website', '')
 
-    elif 'play' in text:
-      text = text.replace('play', '')
+        elif 'go to' in text and 'website' in text:
+          text = text.replace('go to ', '')
+          text = text.replace(' website', '')
 
-    text = text.replace(' on youtube', '')
-    
-    joshua.speak("Opening " + text + " on YouTube...")
-    webSearch.openInYoutube(text)
+        joshua.speak("Opening " + text + "'s website...")
+        webSearch.openSite(text)
 
-  else:
-    joshua.speak("Sorry, I don't know how to do that ...... yet.")
+      elif 'open' in text and 'on youtube' in text or 'open' in text and 'in youtube' in text or 'play' in text and 'on youtube' in text or 'play' in text and 'in youtube' in text:
+        if 'open' in text:
+          text = text.replace('open ', '')
+
+        elif 'play' in text:
+          text = text.replace('play', '')
+
+        if 'on' in text:
+          text = text.replace(' on youtube', '')
+
+        elif 'in' in text:
+          text = text.replace(' in youtube', '')
+        
+        joshua.speak("Opening " + text + " on YouTube...")
+        webSearch.openInYoutube(text)
+
+      else:
+        joshua.speak("Sorry, I don't know how to do that ...... yet.")

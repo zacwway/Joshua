@@ -1,7 +1,6 @@
 import pyttsx3
 import speech_recognition
 import os
-from selenium import webdriver
 import datetime
 import random
 
@@ -15,8 +14,6 @@ class Joshua():
       self.engine.setProperty('rate', 150)
 
       self.recognizer = speech_recognition.Recognizer()
-      
-      self.awake = False
 
   def speak(self, text):
     print(text)
@@ -39,15 +36,11 @@ class Joshua():
       return self.statement
 
   def hello(self):
-    self.awake = True
     greetings = ['Hi', 'Hello', "What's up"]
 
     self.speak(random.choice(greetings))
-    self.speak("How can I help you?")
 
   def goodbye(self):
-    self.awake = True
-
     self.speak("Goodbye!")
 
   def openApp(self, appName, appPath):
