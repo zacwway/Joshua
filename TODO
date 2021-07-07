@@ -1,12 +1,10 @@
-implement wake word
-create News class with functions to get latest news headlines with newsapi.org(make sure you can say 'stop' at any time to stop reading them), and to search something like cnn
 weather
 google maps
 geographical questions
-jokes
-random facts
 songsterr
 music top 10
 conversation log
 math
 dictionary
+time in other contries
+currency converter

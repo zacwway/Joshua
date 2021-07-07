@@ -1,31 +1,17 @@
 from webSearch import WebSearch
+from newsSearch import NewsSearch
 from joshua import Joshua
 from fnmatch import fnmatch
 
 webSearch = WebSearch()
+newsSearch = NewsSearch()
 joshua = Joshua()
 
 USR_START_MENU = r"C:\\Users\\zacwa\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\"
 SYS_START_MENU = r"C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\"
 
 pathToProgram = {
-  'discord':USR_START_MENU + r"Discord Inc\\Discord",
-  'element':USR_START_MENU + r"Element\\Element",
-  'github desktop':USR_START_MENU + r"GitHub, Inc\\GitHub Desktop",
-  'rekordbox':USR_START_MENU + r"Pioneer\\rekordbox 5.8.6\\rekordbox 5",
-  'retroarch':USR_START_MENU + r"RetroArch\\RetroArch",
-  'dolphin':USR_START_MENU + r"Dolphin",
-  'vim':USR_START_MENU + r"Vim 8.2\\Vim",
-  'vs code':USR_START_MENU + r"Visual Studio Code\\Visual Studio Code",
-  'powershell':USR_START_MENU + r"Windows PowerShell\\Windows PowerShell",
-  'file explorer':USR_START_MENU + r"Windows System\\File Explorer",
-  'settings':SYS_START_MENU + r"Settings",
-  'coding projects':USR_START_MENU + r"Coding projects",
-  'zoom':USR_START_MENU + r"Zoom\\Zoom",
-  'librewolf':USR_START_MENU + r"LibreWolf",
-  'edge':SYS_START_MENU + r"Microsoft Edge",
-  'microsoft edge':SYS_START_MENU + r"Microsoft Edge",
-  'audacity':SYS_START_MENU + r"Audacity"
+  'program name':r"C:\\path\\to\\program.exe"
 }
 
 urlForWebsite = {
@@ -63,7 +49,7 @@ while True:
 
       joshua.speak("How can I help you?")
       text = joshua.recordAudio().lower()
-      # text = 'open youtube'
+      # text = 'tell news'
 
       if 'what' in text or "what's" in text and 'time' in text:
         x = joshua.getTime()
@@ -81,6 +67,54 @@ while True:
 
         else:
           joshua.speak("Sorry, I could not find that program.")
+
+      elif 'tell' in text and 'news' in text or 'read' in text and 'news' in text:
+        headlines = newsSearch.getHeadlines()
+        descriptions = newsSearch.getDescriptions()
+        contents = newsSearch.getContents()
+        urls = newsSearch.getURLs()
+
+        joshua.speak("Reading latest news headlines...")
+        print('')
+        print('=> Say "continue" to continue reading news headlines.')
+        print('=> Say "tell me more" to hear more about a news headline.')
+        print('=> Say "read article" or "read contents" to read the entire article')
+        print('=> Say "open in browser" to open the article in the browser')
+        print('=> Say "stop" or "cancel" to stop reading news headlines.')
+        print('')
+
+        i = 0
+        while True:
+          joshua.speak(headlines[i])
+          print('')
+
+          text = joshua.recordAudio().lower()
+
+          if 'tell' in text and 'more' in text:
+            joshua.speak(descriptions[i])
+            print('')
+            i = i + 1
+            continue
+
+          elif 'read article' in text or 'read contents' in text:
+            joshua.speak(contents[i])
+            print('')
+            i = i + 1
+            continue
+
+          elif 'open in browser' in text:
+            joshua.speak('Opening article in browser...')
+            webSearch.openPage(urls[i])
+            break
+
+          elif 'continue' in text:
+            i = i + 1
+            continue
+
+          elif 'stop' in text or 'cancel' in text:
+            break
+
+          i = i + 1
 
       elif 'search wikipedia for' in text:
         query = text.replace("search wikipedia for ", "")
@@ -129,5 +163,15 @@ while True:
         joshua.speak("Opening " + text + " on YouTube...")
         webSearch.openInYoutube(text)
 
+      elif 'cancel' in text:
+        break
+
       else:
-        joshua.speak("Sorry, I don't know how to do that ...... yet.")
+        joshua.speak("Sorry, I don't know how to do that ...... yet. Woudld you like me to search the internet for: " + text + " ?")
+        action = joshua.recordAudio().lower()
+
+        if 'yes' in action or 'yeah' in action or 'sure' in action:
+          joshua.speak("Searching for " + text)
+          webSearch.duckduckgo(text)
+        else:
+          continue
