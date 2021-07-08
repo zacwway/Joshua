@@ -5,7 +5,7 @@ class WebSearch():
       self.options = EdgeOptions()
       self.options.use_chromium = True
       self.options.add_argument("--log-level=3")
-      self.driver = Edge(r'C:\Users\zacwa\edgedriver_win32\msedgedriver.exe', options=self.options)
+      self.driver = Edge(r'C:\path\to\msedgedriver.exe', options=self.options)
 
   def openPage(self, url):
     self.driver.get(url=url)

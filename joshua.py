@@ -62,3 +62,24 @@ class Joshua():
     elif hours > 12:
       hours = hours - 12
       return str(hours) + ":" + minutes + " PM"
+
+  def getDay(self):
+    days_of_week = {
+      0:"Monday",
+      1:"Tuesday",
+      2:"Wednesday",
+      3:"Thursday",
+      4:"Friday",
+      5:"Saturday",
+      6:"Sunday"
+    }
+
+    day = datetime.datetime.weekday()
+    return days_of_week[day]
+
+  def getDate(self):
+    day = datetime.datetime.now().day
+    month = datetime.datetime.now().month
+    year = datetime.datetime.now().year
+
+    return f"{day}-{month}-{year}"

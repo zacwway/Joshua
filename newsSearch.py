@@ -3,7 +3,7 @@ import json
 
 class NewsSearch():
   def __init__(self):
-    self.api_key = "YOUR API KEY"
+    self.api_key = "your API key"
     self.newsAPIurl = "https://newsapi.org/v2/top-headlines?country=us&apiKey="
 
   def getNews(self):
